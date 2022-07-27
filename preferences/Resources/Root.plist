@@ -20,13 +20,13 @@
 			<key>default</key>
 			<true/>
 			<key>defaults</key>
-			<string>com.d11z.textyle</string>
+			<string>com.ryannair05.textyle</string>
 			<key>key</key>
 			<string>Enabled</string>
 			<key>label</key>
 			<string>Enabled</string>
 			<key>PostNotification</key>
-			<string>com.d11z.textyle/preferences</string>
+			<string>com.ryannair05.textyle/preferences</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -34,13 +34,13 @@
 			<key>default</key>
 			<true/>
 			<key>defaults</key>
-			<string>com.d11z.textyle</string>
+			<string>com.ryannair05.textyle</string>
 			<key>key</key>
 			<string>ToggleMenu</string>
 			<key>label</key>
 			<string>Enable Keyboard Toggle</string>
 			<key>PostNotification</key>
-			<string>com.d11z.textyle/preferences</string>
+			<string>com.ryannair05.textyle/preferences</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -99,15 +99,15 @@
 			<string>d3zb6z</string>
 		</dict>
 		<dict>
-			<key>cell</key>
-			<string>PSGroupCell</string>
-			<key>footerText</key>
-			<string>Deniz Basegmez © 2019</string>
-			<key>footerAlignment</key>
-			<integer>1</integer>
+			<key>cellClass</key>
+			<string>TXTTwitterCell</string>
+			<key>label</key>
+			<string>Ryan Nair</string>
+			<key>user</key>
+			<string>ryannair05</string>
 		</dict>
 	</array>
 	<key>title</key>
-	<string>Textyle</string>
+	<string>Textyle 2</string>
 </dict>
 </plist>

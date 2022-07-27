@@ -3,25 +3,18 @@
 #import <AppSupport/CPDistributedMessagingCenter.h>
 #import <rocketbootstrap/rocketbootstrap.h>
 
-@interface TXTStyleManager ()
-
-static void TXTActiveStyleChanged(
-    CFNotificationCenterRef center,
-    void *observer,
-    CFStringRef name,
-    const void *object,
-    CFDictionaryRef userInfo
-);
-
 static void TXTEnabledStylesChanged(
     CFNotificationCenterRef center,
     void *observer,
     CFStringRef name,
     const void *object,
     CFDictionaryRef userInfo
-);
+) {
+    TXTStyleManager *styleManager = [TXTStyleManager sharedManager];
 
-@end
+    [styleManager loadEnabledStyles];
+    [styleManager loadActiveStyle];
+}
 
 @implementation TXTStyleManager {
     NSArray *styles;
@@ -54,17 +47,8 @@ static void TXTEnabledStylesChanged(
     CFNotificationCenterAddObserver(
         CFNotificationCenterGetDarwinNotifyCenter(),
         NULL,
-        (CFNotificationCallback)TXTActiveStyleChanged,
-        CFSTR("com.d11z.textyle.styles/activeStyle"),
-        NULL,
-        CFNotificationSuspensionBehaviorCoalesce
-    );
-
-    CFNotificationCenterAddObserver(
-        CFNotificationCenterGetDarwinNotifyCenter(),
-        NULL,
         (CFNotificationCallback)TXTEnabledStylesChanged,
-        CFSTR("com.d11z.textyle.styles/enabledStyles"),
+        CFSTR("com.ryannair05.textyle.styles/enabledStyles"),
         NULL,
         CFNotificationSuspensionBehaviorCoalesce
     );
@@ -93,24 +77,23 @@ static void TXTEnabledStylesChanged(
     [messageCenter registerForMessageName:kSetActiveStyle target:self selector:@selector(handleMessageNamed:withUserInfo:)];
 }
 
-- (void)handleMessageNamed:(NSString *)name withUserInfo:(NSDictionary *)userInfo {
+- (void)handleMessageNamed:(NSString *)name withUserInfo:(NSDictionary *)userInfo {    
     self.activeStyle = [self styleWithName:userInfo[@"name"]];
     [self saveActiveStyle];
 }
 
 - (void)saveActiveStyle {
-    NSMutableDictionary *preferences = [[NSMutableDictionary alloc] initWithContentsOfFile:kPrefsPath];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSMutableDictionary *preferences;
+
+    if ([fileManager fileExistsAtPath:kPrefsPath]) {
+        preferences = [[NSMutableDictionary alloc] initWithContentsOfFile:kPrefsPath];
+    } else {
+        preferences = [[NSMutableDictionary alloc] init];
+    }
 
     [preferences setObject:self.activeStyle[@"name"] forKey:@"ActiveStyle"];
     [preferences writeToFile:kPrefsPath atomically:YES];
-
-    CFNotificationCenterPostNotification(
-        CFNotificationCenterGetDarwinNotifyCenter(),
-        CFSTR("com.d11z.textyle.styles/activeStyle"),
-        NULL,
-        NULL,
-        YES
-    );
 }
 
 // client
@@ -148,39 +131,14 @@ static void TXTEnabledStylesChanged(
     if (!preferences) {
         self.enabledStyles = styles;
     } else {
-        NSMutableArray *enabledStyles = [NSMutableArray array];
-
-        for (NSDictionary *style in styles) {
-            if ([[preferences objectForKey:style[@"name"]] boolValue]) {
-                [enabledStyles addObject:style];
+        self.enabledStyles = [styles filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id style, NSDictionary *bindings) {
+            if ([preferences objectForKey:style[@"name"]] == nil) {
+                return YES;
             }
-        }
 
-        self.enabledStyles = [enabledStyles copy];
+            return [[preferences objectForKey:style[@"name"]] boolValue];
+        }]];;
     }
-}
-
-static void TXTActiveStyleChanged(
-    CFNotificationCenterRef center,
-    void *observer,
-    CFStringRef name,
-    const void *object,
-    CFDictionaryRef userInfo
-) {
-    [[TXTStyleManager sharedManager] loadActiveStyle];
-}
-
-static void TXTEnabledStylesChanged(
-    CFNotificationCenterRef center,
-    void *observer,
-    CFStringRef name,
-    const void *object,
-    CFDictionaryRef userInfo
-) {
-    TXTStyleManager *styleManager = [TXTStyleManager sharedManager];
-
-    [styleManager loadEnabledStyles];
-    [styleManager loadActiveStyle];
 }
 
 @end

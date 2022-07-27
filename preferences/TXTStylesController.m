@@ -1,7 +1,7 @@
 #import "TXTStylesController.h"
 #import <Preferences/PSSpecifier.h>
 
-#define kUserStylesPath @"/var/mobile/Library/Preferences/com.d11z.textyle.maps.plist"
+#define kUserStylesPath @"/var/mobile/Library/Preferences/com.ryannair05.textyle.maps.plist"
 
 @implementation TXTStylesController {
     NSArray *styles;
@@ -21,7 +21,7 @@
         NSMutableArray *specifiers = [NSMutableArray array];
 
         PSSpecifier *group = [PSSpecifier groupSpecifierWithName:@"Installed Styles"];
-        [group setProperty:@"To add/modify styles, edit /var/mobile/Library/Preferences/com.d11z.textyle.maps.plist" forKey:@"footerText"];
+        [group setProperty:@"To add/modify styles, edit /var/mobile/Library/Preferences/com.ryannair05.textyle.maps.plist" forKey:@"footerText"];
 
         [specifiers addObject:group];
 
@@ -39,8 +39,8 @@
             [item setProperty:style[@"name"] forKey:@"key"];
             [item setProperty:@YES forKey:@"enabled"];
             [item setProperty:@YES forKey:@"default"];
-            [item setProperty:@"com.d11z.textyle.styles" forKey:@"defaults"];
-            [item setProperty:@"com.d11z.textyle.styles/enabledStyles" forKey:@"PostNotification"];
+            [item setProperty:@"com.ryannair05.textyle.styles" forKey:@"defaults"];
+            [item setProperty:@"com.ryannair05.textyle.styles/enabledStyles" forKey:@"PostNotification"];
             [specifiers addObject:item];
         }
 
@@ -90,6 +90,11 @@
     [stylesEdited insertObject:item atIndex:destinationIndexPath.row];
 
     styles = stylesEdited;
+}
+
+- (void)dealloc {
+    [styles release];
+    [super dealloc];
 }
 
 @end

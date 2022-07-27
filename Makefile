@@ -1,6 +1,7 @@
-ARCHS = armv7 arm64 arm64e
+ARCHS = arm64 arm64e
 
-DEBUG = 0
+TARGET := iphone:clang:14.5:13.0
+
 FINALPACKAGE = 1
 
 SUBPROJECTS += preferences
@@ -16,5 +17,5 @@ ADDITIONAL_OBJCFLAGS = -fobjc-arc
 
 include $(THEOS_MAKE_PATH)/tweak.mk
 
-# after-install::
-# 	install.exec "killall -9 SpringBoard"
+after-install::
+	install.exec "killall -9 SpringBoard"

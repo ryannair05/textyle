@@ -1,3 +1,5 @@
+#import "TXTStyleSelectionController.h"
+
 @interface UICalloutBar : UIView
 @property (nonatomic, retain) NSArray *extraItems;
 @property (nonatomic, retain) UIMenuItem *txtMainMenuItem;
@@ -61,11 +63,11 @@
 - (double)defaultWindowLevel;
 @end
 
-@class TXTStyleManager, TXTStyleSelectionWindow;
+@class TXTStyleManager;
 
 static TXTStyleManager *styleManager;
 static UIColor *defaultMenuColor;
-static TXTStyleSelectionWindow *selectionWindow;
+static TXTStyleSelectionController *selectionWindow;
 
 static BOOL enabled;
 static BOOL toggleMenu;
@@ -73,7 +75,6 @@ static BOOL tintMenu;
 static BOOL menuIcon;
 static BOOL tintIcon;
 static NSString *menuLabel;
-static NSDictionary *blacklist;
 
 static BOOL menuOpen;
 static BOOL active;

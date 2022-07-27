@@ -1,10 +1,10 @@
-#define kPrefsPath           @"/var/mobile/Library/Preferences/com.d11z.textyle.plist"
+#define kPrefsPath           @"/var/mobile/Library/Preferences/com.ryannair05.textyle.plist"
 #define kSystemStylesPath    @"/Library/Application Support/Textyle/styles.plist"
-#define kUserStylesPath      @"/var/mobile/Library/Preferences/com.d11z.textyle.maps.plist"
-#define kEnabledStylesPath   @"/var/mobile/Library/Preferences/com.d11z.textyle.styles.plist"
+#define kUserStylesPath      @"/var/mobile/Library/Preferences/com.ryannair05.textyle.maps.plist"
+#define kEnabledStylesPath   @"/var/mobile/Library/Preferences/com.ryannair05.textyle.styles.plist"
 
 #define kCellReuseIdentifier @"TXTStyleCell"
-#define kMessageCenter       @"com.d11z.textyle"
+#define kMessageCenter       @"com.ryannair05.textyle"
 #define kSetActiveStyle      @"setActiveStyle"
 
 #define kMenuIcon            @"/Library/PreferenceBundles/Textyle.bundle/menuIcon.png"

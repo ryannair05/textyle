@@ -1,6 +1,4 @@
-@class TXTCollectionView;
-
 @interface TXTStyleSelectionController : UIViewController <UICollectionViewDataSource, UICollectionViewDelegate>
-@property (nonatomic, retain) TXTCollectionView *collectionView;
+@property (nonatomic, retain) UICollectionView *collectionView;
 - (void)reload;
 @end

@@ -1,10 +1,8 @@
 #import "Tweak.h"
 #import "TXTConstants.h"
 #import "TXTStyleManager.h"
-#import "TXTStyleSelectionWindow.h"
 #import "NSString+Stylize.h"
 #import "SparkAppList.h"
-#import <CommonCrypto/CommonCrypto.h>
 
 static UIImage * resizeImage(UIImage *original, CGSize size) {
     UIGraphicsBeginImageContextWithOptions(size, NO, 0.0);
@@ -12,65 +10,6 @@ static UIImage * resizeImage(UIImage *original, CGSize size) {
     UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     return image;
-}
-
-static const unsigned char _key[] = { 0x1C, 0x46, 0x55, 0x46, 0x1D, 0x5B, 0x50, 0x7, 0x4A, 0x56, 0x12, 0x5E, 0x50, 0x49, 0x51, 0x5A, 0x5E, 0xD, 0x19, 0x56, 0x5D, 0x8, 0x4C, 0x6, 0x3, 0x2, 0x49, 0x4D, 0x4C, 0x51, 0x49, 0x46, 0x1D, 0x5A, 0x4, 0x4C, 0x5E, 0xA, 0x46, 0x4C, 0x00 };
-static const unsigned char *key = &_key[0];
-static const NSString *salt;
-
-inline NSString * __attribute__((always_inline)) NS_REQUIRES_NIL_TERMINATION createSalt(Class clazz, ...) {
-    NSMutableString *classes;
-    id eachClass;
-    va_list argumentList;
-
-    if (clazz) {
-        classes = [[NSMutableString alloc] initWithString:NSStringFromClass(clazz)];
-        va_start(argumentList, clazz);
-        while ((eachClass = va_arg(argumentList, id))) {
-            [classes appendString:NSStringFromClass(eachClass)];
-        }
-        va_end(argumentList);
-    }
-
-    NSData *d = [[classes copy] dataUsingEncoding:NSUTF8StringEncoding];
-    unsigned char obfuscator[CC_SHA1_DIGEST_LENGTH];
-
-    CC_SHA1(d.bytes, (CC_LONG)d.length, obfuscator);
-
-    NSMutableString *output = [NSMutableString stringWithCapacity:CC_SHA1_DIGEST_LENGTH * 2];
-    for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++) {
-        [output appendFormat:@"%02x", obfuscator[i]];
-    }
-
-    return [output copy];
-}
-
-inline NSString * __attribute__((always_inline)) decode(const unsigned char *string) {
-    if (!salt) {
-        salt = createSalt([SparkAppList class], [UICalloutBar class], [TXTStyleSelectionWindow class], [TXTStyleManager class], nil);
-    }
-
-    NSData *data = [[[NSString alloc] initWithFormat:@"%s", string] dataUsingEncoding:NSUTF8StringEncoding];
-    char *dataPtr = (char *)[data bytes];
-    char *keyData = (char *)[[salt dataUsingEncoding:NSUTF8StringEncoding] bytes];
-    char *keyPtr = keyData;
-    int keyIndex = 0;
-
-    for (int x = 0; x < [data length]; x++) {
-        *dataPtr = *dataPtr ^ *keyPtr;
-        dataPtr++;
-        keyPtr++;
-
-        if (++keyIndex == [salt length]) {
-            keyIndex = 0, keyPtr = keyData;
-        }
-    }
-
-    return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-}
-
-inline bool __attribute__((always_inline)) check_crack() {
-    return [[NSFileManager defaultManager] fileExistsAtPath:decode(key)];
 }
 
 %group Textyle
@@ -82,8 +21,6 @@ inline bool __attribute__((always_inline)) check_crack() {
 
 - (id)initWithFrame:(CGRect)arg1 {
     self = %orig;
-
-    if (!check_crack()) return self;
 
     if (!self.txtMainMenuItem) {
         self.txtMainMenuItem = [[UIMenuItem alloc] initWithTitle:menuLabel action:@selector(txtOpenStyleMenu:)];
@@ -147,12 +84,18 @@ inline bool __attribute__((always_inline)) check_crack() {
 
 %end
 
+@interface UICalloutBarBackground : UIView {
+	UIImageView* _separatorView;
+	UIVisualEffectView* _blurView;
+}
+@end
+
 %hook UICalloutBarBackground
 
 - (void)layoutSubviews {
     %orig;
 
-    UIVisualEffectView *tint = MSHookIvar<UIVisualEffectView *>(self, "_tintView");
+    UIVisualEffectView *tint = MSHookIvar<NSArray *>(self, "_subviewCache")[0];
 
     if (!defaultMenuColor) defaultMenuColor = tint.backgroundColor;
 
@@ -284,6 +227,10 @@ inline bool __attribute__((always_inline)) check_crack() {
     %orig(active ? kAccentColorAlpha : arg1);
 }
 
+-(void)setImage:(UIImage *)image forState:(NSUInteger)state{
+	%orig([UIImage imageWithContentsOfFile:@"/Library/PreferenceBundles/Textyle.bundle/menuIcon.png"], state);
+}
+
 %end
 
 %hook UISystemKeyboardDockController
@@ -291,13 +238,8 @@ inline bool __attribute__((always_inline)) check_crack() {
 - (void)loadView {
     %orig;
 
-    if (!check_crack()) return;
-
     UIKeyboardDockItem *dockItem = MSHookIvar<UIKeyboardDockItem *>(self, "_dictationDockItem");
     object_setClass(dockItem.button, %c(TXTDockItemButton));
-
-    UIImage *image = resizeImage([UIImage imageWithContentsOfFile:kMenuIcon], CGSizeMake(27, 27));
-    [dockItem.button setImage:image forState:UIControlStateNormal];
 
     UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(txtLongPress:)];
     longPress.cancelsTouchesInView = NO;
@@ -332,8 +274,14 @@ inline bool __attribute__((always_inline)) check_crack() {
         [hapticFeedbackGenerator impactOccurred];
         hapticFeedbackGenerator = nil;
 
-        if (!selectionWindow) selectionWindow = [[TXTStyleSelectionWindow alloc] init];
-        [selectionWindow show];
+        if (!selectionWindow) {
+            selectionWindow = [[TXTStyleSelectionController alloc] init];
+            selectionWindow.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+            selectionWindow.modalPresentationStyle = 6;
+        }
+
+        if (self.presentedViewController == nil)
+        [self presentViewController:selectionWindow animated:true completion:nil];
     }
 }
 
@@ -361,20 +309,10 @@ inline bool __attribute__((always_inline)) check_crack() {
 
 %end
 
-%hook UIRemoteKeyboardWindow
-- (double)windowLevel { return 999999; }
-- (double)defaultWindowLevel { return 999999; }
-- (void)setWindowLevel:(double)arg1 { %orig(999999); }
-- (void)_setWindowLevel:(double)arg1 { %orig(999999); }
-- (void)setDefaultWindowLevel:(double)arg1 { %orig(999999); }
-- (void)setLevel:(double)arg1 { %orig(999999); }
-- (double)level { return 999999; }
-%end
-
 %end
 
 static void loadPrefs() {
-    NSMutableDictionary *preferences = [[NSMutableDictionary alloc] initWithContentsOfFile:kPrefsPath];
+    NSDictionary *preferences = [[NSDictionary alloc] initWithContentsOfFile:kPrefsPath];
 
     enabled = [([preferences objectForKey:@"Enabled"] ?: @(YES)) boolValue];
     toggleMenu = [([preferences objectForKey:@"ToggleMenu"] ?: @(YES)) boolValue];
@@ -384,26 +322,18 @@ static void loadPrefs() {
     menuLabel = ([preferences objectForKey:@"MenuLabel"] ?: kDefaultMenuLabel);
 }
 
-static void notificationCallback(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
-    loadPrefs();
-}
-
 static void enabledStylesNotificationCallback(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
     [UICalloutBar _releaseSharedInstance];
     [selectionWindow reload];
 }
 
-static void activeStyleNotificationCallback(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
-    [selectionWindow reload];
-    [selectionWindow hideWithDelay:0.15];
-}
 
 static void addObservers() {
     CFNotificationCenterAddObserver(
         CFNotificationCenterGetDarwinNotifyCenter(),
         NULL,
-        (CFNotificationCallback)notificationCallback,
-        CFSTR("com.d11z.textyle/preferences"),
+        (CFNotificationCallback)loadPrefs,
+        CFSTR("com.ryannair05.textyle/preferences"),
         NULL,
         CFNotificationSuspensionBehaviorCoalesce
     );
@@ -412,23 +342,14 @@ static void addObservers() {
         CFNotificationCenterGetDarwinNotifyCenter(),
         NULL,
         (CFNotificationCallback)enabledStylesNotificationCallback,
-        CFSTR("com.d11z.textyle.styles/enabledStyles"),
-        NULL,
-        CFNotificationSuspensionBehaviorCoalesce
-    );
-
-    CFNotificationCenterAddObserver(
-        CFNotificationCenterGetDarwinNotifyCenter(),
-        NULL,
-        (CFNotificationCallback)activeStyleNotificationCallback,
-        CFSTR("com.d11z.textyle.styles/activeStyle"),
+        CFSTR("com.ryannair05.textyle.styles/enabledStyles"),
         NULL,
         CFNotificationSuspensionBehaviorCoalesce
     );
 }
 
 %ctor {
-    NSString *const identifier = [NSBundle mainBundle].bundleIdentifier;
+    NSString *const identifier = (__bridge NSString *) CFBundleGetIdentifier(CFBundleGetMainBundle());
     NSArray *const args = [[NSProcessInfo processInfo] arguments];
     BOOL const isSpringBoard = [identifier isEqualToString:@"com.apple.springboard"];
     BOOL shouldLoad = NO;
@@ -441,11 +362,11 @@ static void addObservers() {
         }
     }
 
-    if ([SparkAppList doesIdentifier:@"com.d11z.textyle" andKey:@"Blacklist" containBundleIdentifier:identifier]) {
+    if ([SparkAppList doesIdentifier:@"com.ryannair05.textyle" andKey:@"Blacklist" containBundleIdentifier:identifier]) {
         shouldLoad = NO;
     }
 
-    if (!shouldLoad || !check_crack()) return;
+    if (!shouldLoad) return;
 
     styleManager = [TXTStyleManager sharedManager];
     if (isSpringBoard) [styleManager initForSpringBoard];

@@ -1,10 +1,11 @@
-Package: com.d11z.textyle
-Name: Textyle
-Depends: mobilesubstrate, com.spark.libsparkapplist
-Version: 1.3
+Package: com.ryannair05.textyle
+Name: Textyle 2
+Depends: mobilesubstrate, com.spark.libsparkapplist, com.rpetrich.rocketbootstrap, firmware (>=13.0)
+Conflicts: com.d11z.textyle
+Version: 1.0.0
 Architecture: iphoneos-arm
 Description: Quickly style any text
-Maintainer: Deniz Basegmez
-Author: Deniz Basegmez
+Maintainer: Ryan Nair
+Author: Ryan Nair and Deniz Basegmez
 Section: Tweaks
 Icon: file:///Library/PreferenceBundles/Textyle.bundle/cydia.png

@@ -35,4 +35,9 @@
     return _imageView.image.size.height;
 }
 
+- (void)dealloc {
+    [_imageView release];
+    [super dealloc];
+}
+
 @end

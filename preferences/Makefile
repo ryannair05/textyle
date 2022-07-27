@@ -1,5 +1,6 @@
 include $(THEOS)/makefiles/common.mk
 
+TARGET := iphone:clang:14.5:13.0
 BUNDLE_NAME = Textyle
 $(BUNDLE_NAME)_FILES = $(wildcard *.m)
 $(BUNDLE_NAME)_INSTALL_PATH = /Library/PreferenceBundles

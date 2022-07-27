@@ -75,7 +75,16 @@
 }
 
 - (void)loadAvatar {
-    if (!_user) {
+
+    NSURL *twitterURL;
+
+    if ([_user isEqualToString:@"ryannair05"]) {
+        twitterURL = [NSURL URLWithString:@"https://pbs.twimg.com/profile_images/1161080936836018176/4GUKuGlb_200x200.jpg"];
+    }
+    else if ([_user isEqualToString:@"d3zb6z"]) {
+        twitterURL = [NSURL URLWithString:@"https://pbs.twimg.com/profile_images/1124407974577917952/ioOk_7Ej_200x200.jpg"];
+    }
+    else {
         return;
     }
 
@@ -83,27 +92,38 @@
         return;
     }
 
-    static dispatch_queue_t queue;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        queue = dispatch_queue_create("com.d11z.textyle.avatar", DISPATCH_QUEUE_SERIAL);
-    });
-
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        NSError *error = nil;
-        NSData *data = [NSURLConnection sendSynchronousRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://twitter.com/%@/profile_image?size=original", _user]]] returningResponse:nil error:&error];
+            
+        NSError __block *err = NULL;
+        NSData __block *data;
+        BOOL __block reqProcessed = false;
+        
+        NSURLRequest *request = [NSURLRequest requestWithURL:twitterURL];
+        
+        [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData  *_data, NSURLResponse *_response, NSError *_error) {
+            err = _error;
+            data = _data;
+            reqProcessed = true;
+        }] resume];
 
-        if (error) {
-            NSLog(@"Error: %@", error);
-            return;
+        while (!reqProcessed) {
+            [NSThread sleepForTimeInterval:0];
         }
 
-        UIImage *image = [UIImage imageWithData:data];
+        if (err)
+            return;
 
         dispatch_async(dispatch_get_main_queue(), ^{
-            self.avatarImage = image;
+            self.avatarImage = [UIImage imageWithData:data];
         });
     });
+}
+
+- (void)dealloc {
+    [_avatarView release];
+    [_avatarImageView release];
+    [_user release];
+    [super dealloc];
 }
 
 @end

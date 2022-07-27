@@ -7,10 +7,10 @@
     [super viewWillAppear:animated];
 
     UIColor *tintColor = [UIColor colorWithRed:1.00 green:0.18 blue:0.33 alpha:0.85f];
-    settingsView = [[UIApplication sharedApplication] keyWindow];
+    settingsView = [[[UIApplication sharedApplication] windows] firstObject];
 
     settingsView.tintColor = tintColor;
-    [UISwitch appearanceWhenContainedIn:self.class, nil].onTintColor = tintColor;
+    [UISwitch appearanceWhenContainedInInstancesOfClasses:@[self.class]].onTintColor = tintColor;
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -34,6 +34,7 @@
 
     [prefs setObject:value forKey:[specifier.properties objectForKey:@"key"]];
     [prefs writeToFile:[NSString stringWithFormat:@"/User/Library/Preferences/%@.plist", [specifier.properties objectForKey:@"defaults"]] atomically:YES];
+    [prefs release];
 
     if ([specifier.properties objectForKey:@"PostNotification"]) {
         CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), (CFStringRef)[specifier.properties objectForKey:@"PostNotification"], NULL, NULL, YES);

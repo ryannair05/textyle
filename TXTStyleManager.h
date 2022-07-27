@@ -5,5 +5,6 @@
 - (void)initForSpringBoard;
 - (void)selectStyle:(NSString *)name;
 - (void)loadActiveStyle;
+- (void)loadEnabledStyles;
 - (NSDictionary *)styleWithName:(NSString *)name;
 @end
