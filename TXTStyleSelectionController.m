@@ -73,7 +73,7 @@
     blurMask.layer.cornerRadius = kCornerRadius;
     blurMask.clipsToBounds = YES;
 
-    UIBlurEffect *blur = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
+    UIBlurEffect *blur = [UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemChromeMaterial];
     UIVisualEffectView *blurView = [[UIVisualEffectView alloc] initWithEffect:blur];
     blurView.frame = blurMask.bounds;
     blurView.layer.masksToBounds = NO;
@@ -114,7 +114,7 @@
 
     [UIView animateWithDuration:0.1
                      animations:^{
-                         [cell setBackgroundColor:[UIColor colorWithRed:1.00 green:0.18 blue:0.33 alpha:1.0f]];
+                         [cell setBackgroundColor:[UIColor systemPinkColor]];
                      }
                      completion:^(BOOL finished) {
                         [self dismissViewControllerAnimated:YES completion:nil];
@@ -140,7 +140,7 @@
 
 - (void)collectionView:(UICollectionView *)collectionView willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
     if ([indexPath isEqual:selectedIndexPath]) {
-        [cell setBackgroundColor:[UIColor colorWithRed:1.00 green:0.18 blue:0.33 alpha:1.0f]];
+        [cell setBackgroundColor:[UIColor systemPinkColor]];
     } else {
         [cell setBackgroundColor:[UIColor clearColor]];
     }
