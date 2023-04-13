@@ -2,7 +2,7 @@ Package: com.ryannair05.textyle
 Name: Textyle 2
 Depends: mobilesubstrate, com.spark.libsparkapplist, com.rpetrich.rocketbootstrap, firmware (>=13.0)
 Conflicts: com.d11z.textyle
-Version: 1.0.0
+Version: 1.0.1
 Architecture: iphoneos-arm
 Description: Quickly style any text
 Maintainer: Ryan Nair

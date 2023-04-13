@@ -277,11 +277,11 @@ static UIImage * resizeImage(UIImage *original, CGSize size) {
         if (!selectionWindow) {
             selectionWindow = [[TXTStyleSelectionController alloc] init];
             selectionWindow.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
-            selectionWindow.modalPresentationStyle = 6;
+            selectionWindow.modalPresentationStyle = UIModalPresentationOverFullScreen;
         }
 
-        if (self.presentedViewController == nil)
-        [self presentViewController:selectionWindow animated:true completion:nil];
+        if (!selectionWindow.isBeingPresented)
+            [self presentViewController:selectionWindow animated:true completion:nil];
     }
 }
 

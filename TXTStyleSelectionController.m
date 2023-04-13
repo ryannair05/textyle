@@ -79,8 +79,8 @@
     blurView.layer.masksToBounds = NO;
     [blurMask addSubview:blurView];
 
-    [blurMask setCenter:CGPointMake(size.width / 2, size.height / 3)];
-    [_collectionView setCenter:CGPointMake(size.width / 2, size.height / 3)];
+    [blurMask setCenter:CGPointMake(size.width / 2, (size.height + 230) / 3)];
+    [_collectionView setCenter:CGPointMake(size.width / 2, (size.height + 230) / 3)];
     
     [self.view addSubview:blurMask];
     [self.view addSubview:_collectionView];

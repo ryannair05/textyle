@@ -1,3 +1,5 @@
+#import <UIKit/UIKit.h>
+
 @interface TXTStyleManager : NSObject
 @property (nonatomic, strong) NSDictionary *activeStyle;
 @property (nonatomic, strong) NSArray *enabledStyles;
