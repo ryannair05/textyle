@@ -7,7 +7,7 @@
 
     if (self) {
         UILabel *label = [[UILabel alloc] initWithFrame:self.contentView.frame];
-        [label setTextColor:[UIColor whiteColor]];
+        [label setTextColor:[UIColor labelColor]];
         [label setTextAlignment:NSTextAlignmentCenter];
         [label setFont:[UIFont systemFontOfSize:16]];
 
